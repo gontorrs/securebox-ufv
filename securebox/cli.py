@@ -2,19 +2,15 @@ import argparse
 import sys
 from pathlib import Path
 
-from keys import (
-    gen_rsa_private_key,
-    gen_ecdh_keypair,
-    gen_sign_keypair,
-    pem_serialize_public_key,
-    pem_serialize_encrypted_private_key,
-    pem_load_public_key,
-    pem_load_private_key,
-)
+from keys import gen_rsa_private_key, gen_ecdh_keypair, gen_sign_keypair, pem_serialize_public_key, pem_serialize_encrypted_private_key, pem_load_public_key, pem_load_private_key
 from crypto.hybrid import encrypt_file_mode_a, decrypt_file_mode_a, encrypt_file_mode_b, decrypt_file_mode_b
 from crypto.signatures import sign_container, verify_container
 from crypto.formats import load_container, save_container, inspect_container
 from crypto.handshake import run_handshake_demo
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
+from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PublicKey
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
+from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey
 
 # Metavar reutilizado en varios comandos de la CLI
 SBOX_METAVAR = "ARCHIVO.sbox"
@@ -29,6 +25,10 @@ def main():
     parser = argparse.ArgumentParser(
         prog="securebox",
         description="SecureBox — Cifrado híbrido, firmas y canal seguro.",
+    )
+    parser.add_argument(
+        "--verbose", action="store_true",
+        help="Muestra información adicional de la operación. Nunca revela claves privadas.",
     )
     subparsers = parser.add_subparsers(dest="command", metavar="COMANDO")
     subparsers.required = True
@@ -56,9 +56,9 @@ def _add_keygen_parser(subparsers):
         description=(
             "Genera claves criptográficas y las guarda en disco.\n\n"
             "Tipos disponibles:\n"
-            "  rsa      — RSA 2048/3072 (para cifrado Modo A)\n"
-            "  ecdh     — X25519        (para cifrado Modo B y handshake)\n"
-            "  sign     — Ed25519       (para firmas digitales)\n"
+            "  rsa      — RSA 2048 (para cifrado Modo A)\n"
+            "  ecdh     — X25519   (para cifrado Modo B y handshake)\n"
+            "  sign     — Ed25519  (para firmas digitales)\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -74,10 +74,6 @@ def _add_keygen_parser(subparsers):
         "--password", required=True, metavar=PASSWORD_METAVAR,
         help="Contraseña para cifrar la clave privada.",
     )
-    p.add_argument(
-        "--rsa-size", type=int, default=2048, choices=[2048, 3072],
-        help="Tamaño de clave RSA en bits (default: 2048). Solo aplica con --type rsa.",
-    )
     p.set_defaults(func=_cmd_keygen)
 
 
@@ -86,9 +82,9 @@ def _cmd_keygen(args):
     prefix = args.out
 
     if args.type == "rsa":
-        private_key = gen_rsa_private_key(key_size=args.rsa_size)
+        private_key = gen_rsa_private_key(key_size=2048)
         public_key = private_key.public_key()
-        tipo_desc = f"RSA-{args.rsa_size}"
+        tipo_desc = "RSA-2048"
 
     elif args.type == "ecdh":
         private_key, public_key = gen_ecdh_keypair()
@@ -112,6 +108,10 @@ def _cmd_keygen(args):
     print(f"[OK] Claves {tipo_desc} generadas:")
     print(f"     Pública:  {pub_path}")
     print(f"     Privada:  {priv_path} (cifrada con contraseña)")
+
+    if args.verbose:
+        print(f"     Tipo:        {tipo_desc}")
+        print(f"     Pub path:    {pub_path}")
 
 
 # ---------------------------------------------------------------------------
@@ -146,20 +146,23 @@ def _cmd_encrypt(args):
     public_key = pem_load_public_key(pub_pem)
 
     if args.mode == "rsa":
-        from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
         if not isinstance(public_key, RSAPublicKey):
             _error("El modo 'rsa' requiere una clave pública RSA (--recipient-pub).")
         encrypt_file_mode_a(args.input, args.output, public_key)
         print("[OK] Archivo cifrado en Modo A (RSA-OAEP + AES-256-GCM).")
 
     elif args.mode == "ecc":
-        from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PublicKey
         if not isinstance(public_key, X25519PublicKey):
             _error("El modo 'ecc' requiere una clave pública X25519 (--recipient-pub).")
         encrypt_file_mode_b(args.input, args.output, public_key)
         print("[OK] Archivo cifrado en Modo B (X25519 + HKDF + AES-256-GCM).")
 
     print(f"     Salida: {args.output}")
+
+    if args.verbose:
+        print(f"     Modo:        {args.mode}")
+        print(f"     Clave pub:   {args.recipient_pub}")
+        print(f"     Algoritmo:   AES-256-GCM")
 
 
 # ---------------------------------------------------------------------------
@@ -196,13 +199,11 @@ def _cmd_decrypt(args):
     mode = container.get("mode")
 
     if mode == "rsa_oaep":
-        from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
         if not isinstance(private_key, RSAPrivateKey):
             _error("Este contenedor requiere una clave privada RSA.")
         decrypt_file_mode_a(args.input, args.output, private_key)
 
     elif mode == "ecc_hkdf":
-        from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey
         if not isinstance(private_key, X25519PrivateKey):
             _error("Este contenedor requiere una clave privada X25519.")
         decrypt_file_mode_b(args.input, args.output, private_key)
@@ -212,6 +213,10 @@ def _cmd_decrypt(args):
 
     print("[OK] Archivo descifrado correctamente.")
     print(f"     Salida: {args.output}")
+
+    if args.verbose:
+        print(f"     Modo:        {mode}")
+        print(f"     Clave priv:  {args.priv_key}")
 
 
 # ---------------------------------------------------------------------------
@@ -254,6 +259,10 @@ def _cmd_sign(args):
     print(f"     Firmante key_id: {container['signature']['signer_key_id']}")
     print(f"     Guardado en: {args.input}")
 
+    if args.verbose:
+        print(f"     Manifest firmado con {algo}.")
+        print(f"     Clave priv:  {args.priv_key}")
+
 
 # ---------------------------------------------------------------------------
 # verify
@@ -283,6 +292,9 @@ def _cmd_verify(args):
         print("[OK] Firma válida. El contenedor no ha sido modificado.")
         print(f"     Algoritmo: {container['signature']['algorithm']}")
         print(f"     Firmante key_id: {container['signature']['signer_key_id']}")
+        if args.verbose:
+            print(f"     Clave pub:   {args.pub_key}")
+            print(f"     Contenedor:  {args.input}")
     except ValueError as e:
         _error(f"Verificación fallida: {e}")
 

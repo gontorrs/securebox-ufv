@@ -21,6 +21,19 @@ Todos los comandos se ejecutan desde la raíz del proyecto con:
 python3 securebox/cli.py <comando> [opciones]
 ```
 
+Para ver la ayuda de cualquier comando:
+
+```bash
+python3 securebox/cli.py --help
+python3 securebox/cli.py <comando> --help
+```
+
+Para mostrar información adicional de cualquier operación (nunca revela claves privadas), usa `--verbose` antes del subcomando:
+
+```bash
+python3 securebox/cli.py --verbose <comando> [opciones]
+```
+
 ---
 
 ### 1. Crear claves
