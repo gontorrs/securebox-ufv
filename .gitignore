@@ -25,7 +25,4 @@ htmlcov/
 .vscode/
 .idea/
 *.swp
-
-# Documentación
-docs/
 flujo.drawio
