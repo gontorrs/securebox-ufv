@@ -1,99 +1,49 @@
-# SecureBox
+# Criptografía UFV — Prácticas Python
 
-Herramienta CLI en Python para cifrado híbrido, firmas digitales y canal seguro. Soporta RSA-OAEP, X25519+HKDF, firmas Ed25519 y un protocolo de handshake con protección anti-MITM y anti-replay.
+Este repositorio contiene las prácticas de criptografía con Python de la asignatura de Criptografía de la Universidad Francisco de Vitoria.
 
-## Requisitos
+## Ramas
 
-```bash
-pip install -r requirements.txt
-```
+| Rama | Contenido |
+|------|-----------|
+| `master` | **Práctica 2 completa — SecureBox**: cifrado híbrido (RSA-OAEP + AES-256-GCM y X25519 + HKDF + AES-256-GCM), firmas digitales (Ed25519 / RSA-PSS), canal seguro con handshake y autenticación mutua, 21 tests con pytest. |
+| `mini-rsa` | **Práctica RSA básica**: script independiente que implementa generación de claves RSA, serialización PEM y cifrado/descifrado asimétrico con RSA-OAEP. |
 
-## Comandos
+---
 
-### Generar claves
+## Rama actual: `mini-rsa`
 
-```bash
-python securebox/cli.py keygen --type rsa  --out keys/receptor     --password <pass>
-python securebox/cli.py keygen --type ecdh --out keys/receptor_ecc  --password <pass>
-python securebox/cli.py keygen --type sign --out keys/firmante      --password <pass>
-```
+Práctica individual sobre el uso de la librería `cryptography` para RSA.
 
-Tipos disponibles: `rsa` (RSA-2048/3072), `ecdh` (X25519), `sign` (Ed25519).
+### Contenido
 
-### Cifrar
+- `main.py` — script con las funciones implementadas y demo ejecutable
 
-```bash
-# Modo A — RSA-OAEP + AES-256-GCM
-python securebox/cli.py encrypt --input archivo.txt --output archivo.sbox --mode rsa --recipient-pub keys/receptor.pub.pem
+### Funciones implementadas
 
-# Modo B — X25519 + HKDF + AES-256-GCM
-python securebox/cli.py encrypt --input archivo.txt --output archivo.sbox --mode ecc --recipient-pub keys/receptor_ecc.pub.pem
-```
+- `gen_priv_key()` — genera clave privada RSA (2048 bits, exponente 65537)
+- `gen_pub_key(private_key)` — obtiene la clave pública
+- `pem_serialize_pub_key(pk)` — serializa clave pública a PEM
+- `pem_serialize_enc_priv_key(sk, pwd)` — serializa y cifra clave privada a PEM
+- `pem_load_pub_key(pem_bytes)` — carga clave pública desde PEM
+- `pem_load_priv_key(pem_bytes, pwd)` — carga clave privada cifrada desde PEM
+- `rsa_encrypt(public_key, plaintext_bytes)` — cifrado RSA-OAEP (SHA-256)
+- `rsa_decrypt(private_key, ciphertext)` — descifrado RSA-OAEP (SHA-256)
 
-### Descifrar
-
-```bash
-python securebox/cli.py decrypt --input archivo.sbox --output recuperado.txt --priv-key keys/receptor.priv.pem --password <pass>
-```
-
-### Firmar y verificar
+### Requisitos
 
 ```bash
-python securebox/cli.py sign   --input archivo.sbox --priv-key keys/firmante.priv.pem --password <pass>
-python securebox/cli.py verify --input archivo.sbox --pub-key  keys/firmante.pub.pem
+pip install cryptography
 ```
 
-### Inspeccionar contenedor
+### Ejecución
 
 ```bash
-python securebox/cli.py inspect archivo.sbox
+python main.py
 ```
 
-Muestra metadatos (versión, modo, algoritmos, key_ids, estado de firma) sin revelar información secreta.
+El script genera las claves, las serializa, cifra un mensaje de ejemplo y lo descifra, imprimiendo todos los valores relevantes por pantalla.
 
-### Demo de canal seguro
+---
 
-```bash
-python securebox/cli.py handshake-demo
-```
-
-Simula un handshake completo entre Alice y Bob: intercambio efímero X25519, derivación HKDF, autenticación del transcript Ed25519 y mensajes cifrados con AES-256-GCM.
-
-### Ejecutar tests
-
-```bash
-pytest tests/
-```
-
-## Estructura del proyecto
-
-```
-securebox/
-├── cli.py
-├── keys.py
-├── crypto/
-│   ├── aead.py
-│   ├── formats.py
-│   ├── handshake.py
-│   ├── hybrid.py
-│   ├── kdf.py
-│   └── signatures.py
-└── utils/
-    ├── encoding.py
-    └── io.py
-tests/
-├── test_keys.py
-├── test_hybrid.py
-├── test_signatures.py
-└── test_handshake.py
-```
-
-## Algoritmos
-
-| Componente | Algoritmo |
-|---|---|
-| Cifrado simétrico | AES-256-GCM |
-| KEM Modo A | RSA-OAEP (SHA-256) |
-| KEM Modo B | X25519 + HKDF-SHA256 |
-| Firma digital | Ed25519 |
-| Huella de clave | SHA-256 |
+> Para ver la práctica completa de SecureBox, cambia a la rama `master`.
