@@ -97,14 +97,14 @@ if __name__ == "__main__":
     print("  PRÁCTICA RSA — Gonzalo Torras Serrano")
     print("=" * 60)
 
-    print("\n[1] GENERACIÓN DE CLAVES")
+    print("\nPrimero hacemos la generación de claves RSA.")
     private_key = gen_priv_key()
     public_key  = gen_pub_key(private_key)
     print(f"  Algoritmo : RSA")
     print(f"  Tamaño    : {KEY_SIZE} bits")
     print(f"  Exponente : {PUBLIC_EXPONENT}")
 
-    print("\n[2] SERIALIZACIÓN DE CLAVES")
+    print("\nSegundo, serializamos las claves a formato PEM. La clave privada se cifra con la contraseña.")
 
     pub_pem  = pem_serialize_pub_key(public_key)
     priv_pem = pem_serialize_enc_priv_key(private_key, PASSWORD)
@@ -112,18 +112,17 @@ if __name__ == "__main__":
     print("\n  Clave pública (PEM):")
     print(pub_pem.decode())
 
-    print("  Clave privada cifrada (PEM, primeras 3 líneas):")
-    for line in priv_pem.decode().splitlines()[:3]:
+    print("  Clave privada cifrada (PEM, primeras 10 líneas):")
+    for line in priv_pem.decode().splitlines()[:10]:
         print(f"    {line}")
-    print("    ...")
 
     # Verificamos que la carga funciona
     pub_loaded  = pem_load_pub_key(pub_pem)
     priv_loaded = pem_load_priv_key(priv_pem, PASSWORD)
     print("\n  Carga desde PEM: OK")
 
-    print("\n[3] CIFRADO Y DESCIFRADO RSA-OAEP")
-    print(f"\n  Plaintext original : \"{MENSAJE}\"")
+    print("\nTercero, ciframos el mensaje con la clave pública y luego lo desciframos con la clave privada para verificar que obtenemos el mismo texto original.")
+    print(f"\n  Texto plano original : \"{MENSAJE}\"")
 
     plaintext_bytes = MENSAJE.encode("utf-8")
     ciphertext      = rsa_encrypt(pub_loaded, plaintext_bytes)
@@ -135,7 +134,7 @@ if __name__ == "__main__":
     recovered_bytes = rsa_decrypt(priv_loaded, ciphertext)
     recovered_text  = recovered_bytes.decode("utf-8")
 
-    print(f"\n  Plaintext recuperado: \"{recovered_text}\"")
-    print(f"\n  Verificación: {'✓ CORRECTO — textos coinciden' if recovered_text == MENSAJE else '✗ ERROR — textos no coinciden'}")
+    print(f"\n  Texto plano recuperado: \"{recovered_text}\"")
+    print(f"\n  Verificación: {'CORRECTO - textos coinciden' if recovered_text == MENSAJE else 'ERROR - textos no coinciden'}")
 
     print("\n" + "=" * 60)
