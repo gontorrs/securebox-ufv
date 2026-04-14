@@ -25,17 +25,16 @@ def gen_pub_key(private_key):
 
 def pem_serialize_pub_key(pk):
     """
-    Serializa una clave pública RSA a formato PEM (SubjectPublicKeyInfo).
+    Serializa una clave pública RSA a formato PEM.
     """
     return pk.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo,
     )
 
-
 def pem_serialize_enc_priv_key(sk, pwd):
     """
-    Serializa y cifra una clave privada RSA a formato PEM (TraditionalOpenSSL).
+    Serializa y cifra una clave privada RSA a formato PEM.
     La clave privada se cifra con la contraseña proporcionada usando BestAvailableEncryption.
     """
     return sk.private_bytes(
@@ -44,13 +43,11 @@ def pem_serialize_enc_priv_key(sk, pwd):
         encryption_algorithm=serialization.BestAvailableEncryption(pwd),
     )
 
-
 def pem_load_pub_key(pem_bytes):
     """
     Carga una clave pública RSA desde bytes PEM.
     """
     return load_pem_public_key(pem_bytes)
-
 
 def pem_load_priv_key(pem_bytes, pwd):
     """
@@ -61,7 +58,7 @@ def pem_load_priv_key(pem_bytes, pwd):
 
 def rsa_encrypt(public_key, plaintext_bytes):
     """
-    Cifra un mensaje con RSA-OAEP (SHA-256).
+    Cifra un mensaje con RSA (SHA-256).
     """
     ciphertext = public_key.encrypt(
         plaintext_bytes,
@@ -73,10 +70,9 @@ def rsa_encrypt(public_key, plaintext_bytes):
     )
     return ciphertext
 
-
 def rsa_decrypt(private_key, ciphertext):
     """
-    Descifra un mensaje cifrado con RSA-OAEP (SHA-256).
+    Descifra un mensaje cifrado con RSA (SHA-256).
     """
     plaintext = private_key.decrypt(
         ciphertext,
