@@ -39,7 +39,6 @@ def pem_serialize_public_key(public_key):
         format=serialization.PublicFormat.SubjectPublicKeyInfo,
     )
 
-
 def pem_serialize_encrypted_private_key(private_key, password_bytes):
     """
     Serializamos una clave privada a bytes PEM, cifrada con contraseña.
@@ -51,7 +50,6 @@ def pem_serialize_encrypted_private_key(private_key, password_bytes):
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.BestAvailableEncryption(password_bytes),
     )
-
 
 def pem_load_public_key(pem_bytes):
     """
