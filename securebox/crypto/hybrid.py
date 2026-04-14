@@ -16,7 +16,7 @@ HKDF_INFO_MODE_B = b"securebox-v1-mode-b"
 
 def encrypt_mode_a(plaintext, recipient_rsa_public_key):
     """
-    Cifra datos con RSA Envelope (Modo A).
+    Cifra con Modo A.
     """
     # Paso 1: generar clave AES-256 aleatoria
     aes_key = os.urandom(32)
@@ -54,7 +54,7 @@ def encrypt_mode_a(plaintext, recipient_rsa_public_key):
 
 def decrypt_mode_a(container, recipient_rsa_private_key):
     """
-    Descifra un contenedor .sbox cifrado en Modo A (RSA Envelope).
+    Descifra un contenedor .sbox cifrado en Modo A.
     """
     if container.get("mode") != "rsa_oaep":
         raise ValueError(
@@ -87,7 +87,7 @@ def decrypt_mode_a(container, recipient_rsa_private_key):
 
 def encrypt_mode_b(plaintext, recipient_x25519_public_key):
     """
-    Cifra datos con ECC KEM/DEM (Modo B).
+    Cifra datos con Modo B.
     """
     # Paso 1: generar par X25519 efímero (solo para este mensaje)
     ephemeral_private = x25519.X25519PrivateKey.generate()

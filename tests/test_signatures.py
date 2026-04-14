@@ -1,16 +1,3 @@
-"""
-test_signatures.py — Pruebas para signatures.py (5 pruebas)
-
-Integración (2):
-  - Ed25519: sign → verify correcto
-  - RSA-PSS: sign → verify correcto
-
-Negativas (3):
-  - Clave pública incorrecta
-  - Ciphertext modificado tras firmar
-  - Contenedor sin firma
-"""
-
 import pytest
 import sys
 import os
@@ -21,7 +8,7 @@ from securebox.keys import gen_rsa_private_key, gen_ecdh_keypair, gen_sign_keypa
 from securebox.crypto.hybrid import encrypt_mode_a, encrypt_mode_b
 from securebox.crypto.signatures import sign_container, verify_container
 
-PLAINTEXT = b"Contenido a firmar en SecureBox."
+PLAINTEXT = b"Esto es lo que hay que firmar en SecureBox."
 
 
 # Integración

@@ -1,6 +1,4 @@
 """
-formats.py — Definición y manejo del formato de contenedor .sbox.
-
 El formato .sbox es un JSON con valores binarios en Base64 y contiene todo lo necesario para descifrar y verificar el archvio, salvo la calve privada del receptor.
 
 Estructura del contenedor:

@@ -1,18 +1,3 @@
-"""
-test_keys.py — Pruebas unitarias para keys.py (6 pruebas)
-
-Unitarias (6):
-  - Generación RSA 2048
-  - Generación X25519
-  - Generación Ed25519
-  - Serialización y carga de clave pública RSA
-  - Clave privada cifrada en disco
-  - Carga con contraseña correcta
-
-Negativas (1):
-  - Contraseña incorrecta
-"""
-
 import pytest
 import sys
 import os
@@ -30,8 +15,7 @@ from securebox.keys import (
     pem_load_private_key,
 )
 
-PASSWORD = b"password_de_prueba"
-
+PASSWORD = b"ufv_2026"
 
 # Unitarias
 

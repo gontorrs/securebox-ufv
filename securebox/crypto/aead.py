@@ -4,7 +4,6 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 #Tamaño del nonce para AES-GCM: 12 bytes.
 NONCE_SIZE = 12
 
-
 def aead_encrypt(key_bytes, plaintext):
     """
     Cifra datos con AES-256-GCM con un nonce aleatorio de 12 bytes.
@@ -16,7 +15,6 @@ def aead_encrypt(key_bytes, plaintext):
     ciphertext_with_tag = aesgcm.encrypt(nonce, plaintext, associated_data=None)
 
     return nonce, ciphertext_with_tag
-
 
 def aead_decrypt(key_bytes, nonce, ciphertext_with_tag):
     """
@@ -31,11 +29,6 @@ def aead_decrypt(key_bytes, nonce, ciphertext_with_tag):
         raise ValueError("Fallo de autenticación AEAD: el ciphertext fue modificado o la clave/nonce son incorrectos.")
 
     return plaintext
-
-
-# ---------------------------------------------------------------------------
-# Helpers internos
-# ---------------------------------------------------------------------------
 
 def validate_key(key_bytes):
     """Verifica que la clave tenga exactamente 32 bytes (AES-256)."""
