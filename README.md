@@ -84,7 +84,7 @@ securebox/
 tests/
 ├── test_keys.py
 ├── test_hybrid.py
-├── test_signatures.py
+└── test_signatures.py
 ```
 
 ## Algoritmos
