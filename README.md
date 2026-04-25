@@ -74,7 +74,7 @@ securebox/
 ├── crypto/
 │   ├── aead.py
 │   ├── formats.py
-│   ├── handshake.py
+│   ├── handshake.ipynb
 │   ├── hybrid.py
 │   ├── kdf.py
 │   └── signatures.py
@@ -85,7 +85,6 @@ tests/
 ├── test_keys.py
 ├── test_hybrid.py
 ├── test_signatures.py
-└── test_handshake.py
 ```
 
 ## Algoritmos
